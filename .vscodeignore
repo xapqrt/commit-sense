@@ -1,5 +1,7 @@
 .vscode/**
 src/**
+out/**/*.map
 **/*.map
 tsconfig.json
+package-lock.json
 node_modules/**
