@@ -1,31 +1,31 @@
-import { randomBytes } from 'node:crypto';
-import { COMMIT_TYPE_LABELS, COMMIT_TYPES,type CommitType } from '../types';
-
-import type { PanelFile, PanelState, ReadyState } from './protocol'; 
+import { randomBytes } from 'node:crypto'; 
+  import { COMMIT_TYPE_LABELS, COMMIT_TYPES,type CommitType } from '../types';
+import { errorHelp } from './errorHelp';
+import type { ErrorState, PanelFile, PanelState, ReadyState } from './protocol';  
 
 
 export function escapeHtml(value: string): string {
-  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+     return value.replace(/&/g,'&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
 }
 
-  const MAX_LISTED_FILES = 40;
+const MAX_LISTED_FILES = 40;
 
-const STATUS_BADGE: Record<string, { letter: string; label: string }> = {
+  const STATUS_BADGE: Record<string, { letter: string; label: string }> = {
 
-  added: { letter: 'A',label: 'Added' },
-  modified: { letter: 'M', label: 'Modified' },
-  deleted: { letter: 'D',label: 'Deleted' },
+    added: { letter: 'A', label: 'Added' },
 
+    modified: { letter: 'M',label: 'Modified' },
+    deleted: { letter: 'D', label: 'Deleted' },
 
-  renamed: { letter: 'R', label: 'Renamed' },
-  copied: { letter: 'C', label: 'Copied' },
-  typechange: { letter: 'T', label: 'Type changed' },
-   unmerged: { letter: 'U', label: 'Unmerged' },
-    unknown: { letter: '?', label: 'Unknown' }
-
+     renamed: { letter: 'R', label: 'Renamed' },  
+   copied: { letter: 'C', label: 'Copied' },
+   typechange: { letter: 'T', label: 'Type changed' }, 
+    unmerged: { letter: 'U', label: 'Unmerged' },  
+     unknown: { letter: '?',label: 'Unknown' }
 };
 
-const STYLE = `
+const STYLE=`
 :root{--bg:var(--vscode-sideBar-background,var(--vscode-editor-background,#1e1e1e));--fg:var(--vscode-foreground,#cccccc);--muted:var(--vscode-descriptionForeground,#9d9d9d);
 --border:var(--vscode-panel-border,#3c3c3c);--input-bg:var(--vscode-input-background,#2a2a2a);--input-fg:var(--vscode-input-foreground,#e6e6e6);
 --accent:var(--vscode-button-background,#0e639c);--accent-fg:var(--vscode-button-foreground,#ffffff);--accent-hover:var(--vscode-button-hoverBackground,#1177bb);
@@ -54,10 +54,11 @@ table{width:100%;border-collapse:collapse;font-size:12px}td{padding:2px 4px;vert
 .add{color:var(--ok)}.del{color:var(--err)}.badge{display:inline-block;width:18px;text-align:center;border-radius:3px;font-size:10.5px;font-weight:700;border:1px solid var(--border)}
 .b-added{color:var(--ok)}.b-deleted{color:var(--err)}.b-renamed,.b-modified{color:var(--warn)}
 .foot{margin-top:18px;color:var(--muted);font-size:11.5px;border-top:1px solid var(--border);padding-top:10px}.flash{color:var(--ok);font-size:12px;min-height:16px}
-.skeleton{color:var(--muted);padding:24px 0}.problem{color:var(--err);margin:14px 0}
+.skeleton{color:var(--muted);padding:24px 0}.notice{border:1px solid var(--border);border-left-width:4px;border-radius:4px;padding:10px 12px;margin:14px 0}.notice.problem{border-left-color:var(--err)}.notice.info{border-left-color:var(--accent)}.notice p{margin:6px 0;color:var(--muted)}.notice ol{margin:6px 0 0;padding-left:18px}.notice li{margin:3px 0}
 `;
 
-const SCRIPT=`
+
+const SCRIPT = `
 (function(){
   var api = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : { postMessage: function(){} };
   var box = document.getElementById('msg');
@@ -105,44 +106,44 @@ const ERROR_SCRIPT=`
 })();
 `;
 
-function chips(state: ReadyState): string {
- return COMMIT_TYPES.map((type: CommitType) => {
-    const isSuggested = type === state.type;
-   const isAlt = state.alternatives.includes(type);
-    const cls = ['chip', isSuggested ? 'on' : '', isAlt ? 'alt' : ''].filter(Boolean).join(' ');
-    return `<button type="button" class="${cls}" data-type="${type}" title="${escapeHtml(COMMIT_TYPE_LABELS[type])}">${type}${isSuggested ? '<span class="star">★</span>' : ''}</button>`;
+function chips(state: ReadyState): string {  
 
-  }).join('');
-}
+    return COMMIT_TYPES.map((type: CommitType) => {  
+        const isSuggested = type === state.type;
+        const isAlt = state.alternatives.includes(type);
+        const cls = ['chip', isSuggested ? 'on' : '', isAlt ? 'alt' : ''].filter(Boolean).join(' ');
+        return `<button type="button" class="${cls}" data-type="${type}" title="${escapeHtml(COMMIT_TYPE_LABELS[type])}">${type}${isSuggested ? '<span class="star">★</span>' : ''}</button>`;
+    }).join('');
+
+} 
 
 function confidenceBar(confidence: number): string {
-
-   const pct = Math.round(confidence * 100);
-  const cls = pct >= 65 ? '' : pct >= 40 ? ' mid' : ' low'; 
-  return `<div class="conf"><span>Confidence</span><span class="bar${cls}"><i style="width:${pct}%"></i></span><span>${pct}%</span></div>`;
+    const pct=Math.round(confidence * 100); 
+    const cls = pct >= 65 ? '' : pct >= 40 ? ' mid':' low';
+   return `<div class="conf"><span>Confidence</span><span class="bar${cls}"><i style="width:${pct}%"></i></span><span>${pct}%</span></div>`;
 
 }
 
-  function fileRow(file: PanelFile): string { 
-  const badge = STATUS_BADGE[file.status] ?? STATUS_BADGE.unknown;
-  const name = file.status === 'renamed' && file.oldPath !== undefined ? `${file.oldPath} → ${file.path}` : file.path;
-   const stats = file.binary ? '<span>binary</span>' : `<span class="add">+${file.additions}</span> <span class="del">-${file.deletions}</span>`;
 
-  return `<tr><td><span class="badge b-${file.status}" title="${badge?.label ?? ''}">${badge?.letter ?? '?'}</span></td><td class="p">${escapeHtml(name)}</td><td class="n">${stats}</td></tr>`;
-}
+function fileRow(file: PanelFile): string {
 
-function fileTable(state: ReadyState): string {  
-  const shown = state.files.slice(0, MAX_LISTED_FILES).map(fileRow).join('');
-  const extra=state.files.length - MAX_LISTED_FILES;
-  const more  =  extra > 0 ? `<tr><td></td><td class="p">…and ${extra} more files</td><td></td></tr>` : '';
-  return `<table>${shown}${more}</table>`;
+    const badge = STATUS_BADGE[file.status] ?? STATUS_BADGE.unknown;
+    const name = file.status === 'renamed' && file.oldPath !== undefined ? `${file.oldPath} → ${file.path}`:file.path;
+    const stats = file.binary ? '<span>binary</span>' : `<span class="add">+${file.additions}</span> <span class="del">-${file.deletions}</span>`;
+    return `<tr><td><span class="badge b-${file.status}" title="${badge?.label ?? ''}">${badge?.letter ?? '?'}</span></td><td class="p">${escapeHtml(name)}</td><td class="n">${stats}</td></tr>`;
+}  
+
+function fileTable(state: ReadyState): string {
+
+    const shown = state.files.slice(0, MAX_LISTED_FILES).map(fileRow).join('');
+    const extra = state.files.length - MAX_LISTED_FILES;
+    const more = extra > 0 ? `<tr><td></td><td class="p">…and ${extra} more files</td><td></td></tr>` : ''; 
+    return `<table>${shown}${more}</table>`; 
 }
 
 function renderReady(state: ReadyState): string {
-
-
-  const reasons = state.reasons.map((r) => `<li>${escapeHtml(r)}</li>`).join('');
-  return `
+    const reasons = state.reasons.map((r) => `<li>${escapeHtml(r)}</li>`).join('');  
+    return `
 <h1>Suggested commit message</h1>
 <p class="sub">${escapeHtml(state.repoName)} · ${state.files.length} staged ${state.files.length === 1 ? 'file' : 'files'} · <span class="add">+${state.totalAdditions}</span> <span class="del">-${state.totalDeletions}</span></p>
 ${confidenceBar(state.confidence)}
@@ -160,34 +161,43 @@ ${confidenceBar(state.confidence)}
 <h2>Staged files</h2>
 ${fileTable(state)}
 <p class="foot">Read-only helper: it never commits, stages files or changes your history. Copy the message and paste it into the Source Control box.</p>`;
+}
 
+function renderError(state: ErrorState): string {
+      const help = errorHelp(state.code); 
+
+    const steps=help.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join('');
+      return `<h1>Better Commit Message</h1> 
+<div class="notice ${help.tone}" role="${help.tone === 'problem' ? 'alert' : 'status'}"><strong>${escapeHtml(help.title)}</strong><p>${escapeHtml(state.message)}</p><ol>${steps}</ol></div>
+<div class="row"><button class="btn" id="refresh" type="button">Refresh</button></div>
+<p class="foot">Read-only helper: it never commits, stages files or changes your history.</p>`;
 }
 
 
 function renderBody(state: PanelState): string {
-  switch (state.kind) {  
-      case 'loading':
-      return '<h1>Better Commit Message</h1><p class="skeleton">Reading staged changes…</p>';  
-    case 'error':
-      return `<h1>Better Commit Message</h1><p class="problem" role="alert">${escapeHtml(state.message)}</p><div class="row"><button class="btn" id="refresh" type="button">Try again</button></div>`;
-    case 'ready':
+    switch (state.kind) { 
+        case 'loading':
+            return '<h1>Better Commit Message</h1><p class="skeleton">Reading staged changes…</p>';
+       case 'error': 
+            return renderError(state);
+         case 'ready':
+            return renderReady(state);
 
-      return renderReady(state);
-   }
+    }  
+
 }
 
-export function renderPanelHtml(state: PanelState, nonce: string, cspSource: string): string {
-
-  const csp = `default-src 'none'; style-src 'nonce-${nonce}' ${cspSource}; script-src 'nonce-${nonce}';`;
-  const script = state.kind === 'ready' ? `<script nonce="${nonce}">${SCRIPT}</script>` : state.kind === 'error' ? `<script nonce="${nonce}">${ERROR_SCRIPT}</script>` : '';
-  return `<!DOCTYPE html>  
+ export function renderPanelHtml(state: PanelState,  nonce: string, cspSource: string): string { 
+    const csp = `default-src 'none'; style-src 'nonce-${nonce}' ${cspSource}; script-src 'nonce-${nonce}';`;
+    const script = state.kind === 'ready' ? `<script nonce="${nonce}">${SCRIPT}</script>` : state.kind === 'error' ? `<script nonce="${nonce}">${ERROR_SCRIPT}</script>` : '';
+   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="${csp}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Better Commit Message</title>
 <style nonce="${nonce}">${STYLE}</style></head><body>${renderBody(state)}${script}</body></html>`;
-
 }
 
-export function makeNonce(): string {
-  return randomBytes(16).toString('base64');
+  export function makeNonce(): string {
+
+    return randomBytes(16).toString('base64');
 }
 

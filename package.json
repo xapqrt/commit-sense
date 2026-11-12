@@ -21,7 +21,7 @@
     "offline"
   ],
   "main": "./out/src/extension.js",
-  "activationEvents": [],
+  "activationEvents": ["onStartupFinished"],
   "contributes": {
     "commands": [
       {
