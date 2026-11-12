@@ -22,7 +22,16 @@
   ],
   "main": "./out/src/extension.js",
   "activationEvents": [],
-  "contributes": {},
+  "contributes": {
+    "commands": [
+      {
+        "command": "betterCommit.suggest",
+        "title": "Suggest Commit Message from Staged Changes",
+        "category": "Better Commit",
+        "icon": "$(sparkle)"
+      }
+    ]
+  },
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
