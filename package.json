@@ -1,0 +1,37 @@
+{
+  "name": "better-git-commit-message-helper",
+  "displayName": "Better Git Commit Message Helper",
+  "description": "Offline helper that suggests a short Conventional Commits message from your staged changes. Never runs commit, add, reset or push.",
+  "version": "0.1.0",
+  "publisher": "aadyant-bharti",
+  "private": true,
+  "engines": {
+    "vscode": "^1.85.0",
+    "node": ">=18"
+  },
+  "categories": [
+    "SCM Providers",
+    "Other"
+  ],
+  "keywords": [
+    "git",
+    "commit",
+    "conventional commits",
+    "productivity",
+    "offline"
+  ],
+  "main": "./out/src/extension.js",
+  "activationEvents": [],
+  "contributes": {},
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.2.1",
+    "typescript": "^5.6.3"
+  }
+}
