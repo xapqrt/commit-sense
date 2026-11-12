@@ -21,7 +21,9 @@
     "offline"
   ],
   "main": "./out/src/extension.js",
-  "activationEvents": ["onStartupFinished"],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "contributes": {
     "commands": [
       {
@@ -30,7 +32,41 @@
         "category": "Better Commit",
         "icon": "$(sparkle)"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Better Commit Message",
+      "properties": {
+        "betterCommit.maxHeaderLength": {
+          "type": "number",
+          "default": 72,
+          "minimum": 30,
+          "maximum": 120,
+          "description": "Maximum length of the first line (type, scope and subject)."
+        },
+        "betterCommit.includeScope": {
+          "type": "boolean",
+          "default": true,
+          "description": "Suggest a scope such as fix(auth): when it can be inferred confidently."
+        },
+        "betterCommit.includeBody": {
+          "type": "boolean",
+          "default": false,
+          "description": "Add a short list of the biggest changed files as the commit body."
+        },
+        "betterCommit.showStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the Commit msg entry in the status bar."
+        },
+        "betterCommit.maxDiffSize": {
+          "type": "number",
+          "default": 200000,
+          "minimum": 10000,
+          "maximum": 2000000,
+          "description": "Maximum number of diff characters analysed. Larger diffs are analysed partly and flagged."
+        }
+      }
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",
